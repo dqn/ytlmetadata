@@ -41,6 +41,41 @@ type responseContext struct {
 	WebResponseContextExtensionData webResponseContextExtensionData `json:"webResponseContextExtensionData"`
 }
 
+type Runs struct {
+	Text string `json:"text"`
+}
+
+type viewCountDetail struct {
+	Runs []Runs `json:"runs"`
+}
+
+type accessibilityData struct {
+	Label string `json:"label"`
+}
+
+type accessibility struct {
+	AccessibilityData accessibilityData `json:"accessibilityData"`
+}
+
+type extraShortViewCount struct {
+	SimpleText    string        `json:"simpleText"`
+	Accessibility accessibility `json:"accessibility"`
+}
+
+type videoViewCountRenderer struct {
+	ViewCount           viewCountDetail     `json:"viewCount"`
+	IsLive              bool                `json:"isLive"`
+	ExtraShortViewCount extraShortViewCount `json:"extraShortViewCount"`
+}
+
+type viewCount struct {
+	VideoViewCountRenderer videoViewCountRenderer `json:"videoViewCountRenderer"`
+}
+
+type updateViewershipAction struct {
+	ViewCount viewCount `json:"viewCount"`
+}
+
 type defaultText struct {
 	SimpleText string `json:"simpleText"`
 }
@@ -93,12 +128,12 @@ type navigationEndpoint struct {
 	URLEndpoint         urlEndpoint     `json:"urlEndpoint"`
 }
 
-type Visibility struct {
+type visibility struct {
 	Types string `json:"types"`
 }
 
-type LoggingDirectives struct {
-	Visibility Visibility `json:"visibility"`
+type loggingDirectives struct {
+	Visibility visibility `json:"visibility"`
 }
 
 type watchEndpoint struct {
@@ -113,7 +148,7 @@ type urlEndpoint struct {
 type runs struct {
 	Text               string             `json:"text"`
 	NavigationEndpoint navigationEndpoint `json:"navigationEndpoint,omitempty"`
-	LoggingDirectives  LoggingDirectives  `json:"loggingDirectives,omitempty"`
+	LoggingDirectives  loggingDirectives  `json:"loggingDirectives,omitempty"`
 }
 
 type description struct {
@@ -125,6 +160,7 @@ type updateDescriptionAction struct {
 }
 
 type actions struct {
+	UpdateViewershipAction       updateViewershipAction       `json:"updateViewershipAction"`
 	UpdateToggleButtonTextAction updateToggleButtonTextAction `json:"updateToggleButtonTextAction,omitempty"`
 	UpdateDateTextAction         updateDateTextAction         `json:"updateDateTextAction,omitempty"`
 	UpdateTitleAction            updateTitleAction            `json:"updateTitleAction,omitempty"`
