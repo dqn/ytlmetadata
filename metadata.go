@@ -15,16 +15,27 @@ const (
 	clientVersion = "2.20200716.00.00"
 )
 
-type Metadata struct {
+type MetadataClient struct {
 	client *http.Client
 	key    string
 }
 
-func New() *Metadata {
-	return &Metadata{client: &http.Client{}}
+type Metadata struct {
+	ViewCount      string
+	ShortViewCount string
+	IsLive         bool
+	LikeCount      string
+	DislikeCount   string
+	Date           string
+	Title          string
+	Description    string
 }
 
-func (m *Metadata) fetchMetadata(videoID string) (*metadataResponse, error) {
+func New() *MetadataClient {
+	return &MetadataClient{client: &http.Client{}}
+}
+
+func (m *MetadataClient) fetchMetadata(videoID string) (*metadataResponse, error) {
 	endpoint := baseURL + "/youtubei/v1/updated_metadata"
 
 	body := &metadataRequest{
@@ -71,21 +82,58 @@ func (m *Metadata) fetchMetadata(videoID string) (*metadataResponse, error) {
 	return &r, err
 }
 
-func (m *Metadata) Fetch(videoID string) (interface{}, error) {
+func (m *MetadataClient) Fetch(videoID string) (*Metadata, error) {
 	if m.key == "" {
 		if err := m.updateKey(); err != nil {
 			return nil, err
 		}
 	}
 
-	metadata, err := m.fetchMetadata(videoID)
+	resp, err := m.fetchMetadata(videoID)
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Printf("%#v\n", metadata)
+	meta := Metadata{}
 
-	return nil, nil
+	for _, action := range resp.Actions {
+		viewCount := action.UpdateViewershipAction.ViewCount.VideoViewCountRenderer
+		toggleButton := action.UpdateToggleButtonTextAction
+		date := action.UpdateDateTextAction
+		title := action.UpdateTitleAction
+		description := action.UpdateDescriptionAction.Description
+
+		if runs := viewCount.ViewCount.Runs; len(runs) != 0 {
+			meta.ViewCount = runs[0].Text
+			meta.ShortViewCount = viewCount.ExtraShortViewCount.SimpleText
+			meta.IsLive = viewCount.IsLive
+			continue
+		}
+		if toggleButton.ButtonID == "TOGGLE_BUTTON_ID_TYPE_LIKE" {
+			meta.LikeCount = toggleButton.DefaultText.SimpleText
+			continue
+		}
+		if toggleButton.ButtonID == "TOGGLE_BUTTON_ID_TYPE_DISLIKE" {
+			meta.DislikeCount = toggleButton.DefaultText.SimpleText
+			continue
+		}
+		if date.DateText.SimpleText != "" {
+			meta.Date = date.DateText.SimpleText
+			continue
+		}
+		if title.Title.SimpleText != "" {
+			meta.Title = title.Title.SimpleText
+			continue
+		}
+		if runs := description.Runs; len(runs) != 0 {
+			for _, descriptionRun := range runs {
+				meta.Description += descriptionRun.Text
+			}
+			continue
+		}
+	}
+
+	return &meta, nil
 }
 
 func getBetween(s string, a string, b string) string {
@@ -103,7 +151,7 @@ func getBetween(s string, a string, b string) string {
 	return backward[:end]
 }
 
-func (m *Metadata) updateKey() error {
+func (m *MetadataClient) updateKey() error {
 	resp, err := m.client.Get(baseURL)
 	if err != nil {
 		return err
