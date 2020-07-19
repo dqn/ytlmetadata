@@ -16,8 +16,9 @@ const (
 )
 
 type MetadataClient struct {
-	client *http.Client
-	key    string
+	client   *http.Client
+	key      string
+	Language string
 }
 
 type Metadata struct {
@@ -32,7 +33,10 @@ type Metadata struct {
 }
 
 func New() *MetadataClient {
-	return &MetadataClient{client: &http.Client{}}
+	return &MetadataClient{
+		client:   &http.Client{},
+		Language: "en",
+	}
 }
 
 func (m *MetadataClient) fetchMetadata(videoID string) (*metadataResponse, error) {
@@ -41,7 +45,7 @@ func (m *MetadataClient) fetchMetadata(videoID string) (*metadataResponse, error
 	body := &metadataRequest{
 		Context: context{
 			Client: client{
-				Hl:            "en",
+				Hl:            m.Language,
 				ClientName:    "WEB",
 				ClientVersion: clientVersion,
 			},

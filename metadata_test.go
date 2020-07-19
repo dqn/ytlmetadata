@@ -8,6 +8,8 @@ import (
 
 func TestMetadata(t *testing.T) {
 	m := New()
+
+	// m.Language = "ja"
 	metadata, err := m.Fetch(os.Getenv("VIDEO_ID"))
 	if err != nil {
 		t.Fatal(err)
