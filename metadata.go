@@ -83,6 +83,11 @@ func (m *MetadataClient) fetchMetadata(videoID string) (*metadataResponse, error
 		return nil, err
 	}
 
+	if len(r.Actions) == 0 {
+		err = fmt.Errorf("this video id is not available")
+		return nil, err
+	}
+
 	return &r, err
 }
 
