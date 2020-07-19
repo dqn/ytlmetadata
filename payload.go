@@ -41,12 +41,12 @@ type responseContext struct {
 	WebResponseContextExtensionData webResponseContextExtensionData `json:"webResponseContextExtensionData"`
 }
 
-type Runs struct {
+type viewCountDetailRuns struct {
 	Text string `json:"text"`
 }
 
 type viewCountDetail struct {
-	Runs []Runs `json:"runs"`
+	Runs []viewCountDetailRuns `json:"runs"`
 }
 
 type accessibilityData struct {
@@ -145,14 +145,14 @@ type urlEndpoint struct {
 	Nofollow bool   `json:"nofollow"`
 }
 
-type runs struct {
+type descriptionRuns struct {
 	Text               string             `json:"text"`
 	NavigationEndpoint navigationEndpoint `json:"navigationEndpoint,omitempty"`
 	LoggingDirectives  loggingDirectives  `json:"loggingDirectives,omitempty"`
 }
 
 type description struct {
-	Runs []runs `json:"runs"`
+	Runs []descriptionRuns `json:"runs"`
 }
 
 type updateDescriptionAction struct {
